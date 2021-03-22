@@ -1,0 +1,53 @@
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# BUILD ETL BASE UBUNTU TEST
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+FROM python:2.7.14 as base_processor_ubuntu_test
+
+ARG APT_PACKAGES
+RUN apt-get update && apt-get install --yes $APT_PACKAGES
+
+RUN wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64
+RUN chmod +x jq-linux64
+RUN mv jq-linux64 /usr/bin/jq
+
+# install test env
+RUN pip install --no-cache-dir \
+    awscli==1.14 \
+    boto3==1.6 \
+    botocore==1.10.84 \
+    moto \
+    pylint \
+    pytest \
+    pytest-cov \
+    pandas \
+    quantities==0.12.1
+
+COPY base_processor /usr/local/lib/python2.7/site-packages/base_processor
+COPY bashlog        /bin/bashlog
+
+ENTRYPOINT [""]
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# BUILD ETL BASE UBUNTU
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FROM python:2.7.14 as base_processor_ubuntu
+
+ARG APT_PACKAGES
+RUN apt-get update && apt-get install --yes $APT_PACKAGES
+
+RUN wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64
+RUN chmod +x jq-linux64
+RUN mv jq-linux64 /usr/bin/jq
+
+RUN pip install --no-cache-dir \
+    awscli==1.14 \
+    boto3==1.6 \
+    botocore==1.10.84 \
+    pandas \
+    quantities==0.12.1
+
+COPY base_processor /usr/local/lib/python2.7/site-packages/base_processor
+COPY bashlog        /bin/bashlog
+
+ENTRYPOINT [""]

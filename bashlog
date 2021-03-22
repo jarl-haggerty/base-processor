@@ -1,0 +1,29 @@
+#!/bin/bash
+
+SCRIPT="$@"
+
+# format message
+if [[ "$LOG_FORMAT" == "RAW" ]]; then
+    JQ_OPTS='-r'
+    JQ_FORMAT='.'
+else
+    JQ_OPTS=''
+    JQ_FORMAT='. | {
+    message: .,
+    date: (now | todate),
+    timestamp: now,
+    blackfynn: {
+        import_id: env.IMPORT_ID,
+        job_type: env.JOB_TYPE,
+        organization_id: env.ORGANIZATION_ID,
+        user_id: env.USER_ID,
+        environment_name: env.ENVIRONMENT,
+        service_name: "etl"}
+    }'
+fi
+
+# run script
+/bin/bash $SCRIPT 2>&1 | jq -c -R --unbuffered $JQ_OPTS "$JQ_FORMAT"
+
+# exit using exit-code from $SCRIPT
+exit ${PIPESTATUS[0]}

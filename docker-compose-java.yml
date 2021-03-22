@@ -1,0 +1,14 @@
+version: '3.5'
+
+services:
+  base_processor_java_python:
+    image: pennsieve/base-processor-java-python:${IMAGE_TAG}
+    build:
+      context: .
+      dockerfile: Dockerfile-java
+      target: base_processor_java_python
+      args:
+        APK_PACKAGES: ${APK_PACKAGES}
+        PIP_PACKAGES: ${PIP_PACKAGES}
+        JAVA_IMAGE_TAG: ${JAVA_IMAGE_TAG}
+

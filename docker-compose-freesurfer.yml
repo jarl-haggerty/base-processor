@@ -1,0 +1,26 @@
+version: '3.5'
+
+services:
+  base_processor_freesurfer:
+    image: pennsieve/base-processor-freesurfer:${IMAGE_TAG}
+    build:
+      context: .
+      dockerfile: Dockerfile-freesurfer
+      target: base_processor_freesurfer
+      args:
+        FREESURFER_APT_PACKAGES: ${FREESURFER_APT_PACKAGES}
+        BASE_FREESURFER_IMAGE_TAG: ${BASE_FREESURFER_IMAGE_TAG}
+        PIP_PACKAGES: ${PIP_PACKAGES}
+
+  base_processor_freesurfer_test:
+    image: pennsieve/base-processor-freesurfer-test:${IMAGE_TAG}
+    build:
+      context: .
+      dockerfile: Dockerfile-freesurfer
+      target: base_processor_freesurfer_test
+      args:
+        FREESURFER_APT_PACKAGES: ${FREESURFER_APT_PACKAGES}
+        FREESURFER_APT_TEST_PACKAGES: ${FREESURFER_APT_TEST_PACKAGES}
+        BASE_FREESURFER_IMAGE_TAG: ${BASE_FREESURFER_IMAGE_TAG}
+        PIP_PACKAGES: ${PIP_PACKAGES}
+        PIP_TEST_PACKAGES: ${PIP_TEST_PACKAGES}

@@ -1,0 +1,25 @@
+version: '3.5'
+
+services:
+  base_processor:
+    image: pennsieve/base-processor:${IMAGE_TAG}
+    build:
+      context: .
+      target: base_processor
+      args:
+        APK_PACKAGES: ${APK_PACKAGES}
+        BASE_IMAGE_TAG: ${BASE_IMAGE_TAG}
+        PIP_PACKAGES: ${PIP_PACKAGES}
+    container_name: etl-base-processor
+
+  base_processor_test:
+    image: pennsieve/base-processor-test:${IMAGE_TAG}
+    build:
+      context: .
+      target: base_processor_test
+      args:
+        APK_PACKAGES: ${APK_PACKAGES}
+        APK_TEST_PACKAGES: ${APK_TEST_PACKAGES}
+        BASE_IMAGE_TAG: ${BASE_IMAGE_TAG}
+        PIP_PACKAGES: ${PIP_PACKAGES}
+        PIP_TEST_PACKAGES: ${PIP_TEST_PACKAGES}

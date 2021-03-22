@@ -1,0 +1,25 @@
+version: '3.5'
+
+services:
+  base_processor_ubuntu:
+    image: pennsieve/base-processor-ubuntu:${IMAGE_TAG}
+    build:
+      context: .
+      dockerfile: Dockerfile-ubuntu
+      target: base_processor_ubuntu
+      args:
+        APT_PACKAGES: ${APT_PACKAGES}
+        UBUNTU_IMAGE_TAG: ${UBUNTU_IMAGE_TAG}
+        PIP_PACKAGES: ${PIP_PACKAGES}
+
+  base_processor_ubuntu_test:
+    image: pennsieve/base-processor-ubuntu-test:${IMAGE_TAG}
+    build:
+      context: .
+      dockerfile: Dockerfile-ubuntu
+      target: base_processor_ubuntu_test
+      args:
+        APT_PACKAGES: ${APT_PACKAGES}
+        UBUNTU_IMAGE_TAG: ${UBUNTU_IMAGE_TAG}
+        PIP_PACKAGES: ${PIP_PACKAGES}
+        PIP_TEST_PACKAGES: ${PIP_TEST_PACKAGES}

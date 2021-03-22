@@ -1,0 +1,28 @@
+version: '3.5'
+
+services:
+  base_processor_pandas:
+    image: pennsieve/base-processor-pandas:${IMAGE_TAG}
+    build:
+      context: .
+      dockerfile: Dockerfile-pandas
+      target: base_processor_pandas
+      args:
+        APK_PACKAGES: ${APK_PACKAGES}
+        PANDAS_IMAGE_TAG: ${PANDAS_IMAGE_TAG}
+        PANDAS_PIP_PACKAGES: ${PANDAS_PIP_PACKAGES}
+        PIP_PACKAGES: ${PIP_PACKAGES}
+
+  base_processor_pandas_test:
+    image: pennsieve/base-processor-pandas-test:${IMAGE_TAG}
+    build:
+      context: .
+      dockerfile: Dockerfile-pandas
+      target: base_processor_pandas_test
+      args:
+        APK_PACKAGES: ${APK_PACKAGES}
+        APK_TEST_PACKAGES: ${APK_TEST_PACKAGES}
+        PANDAS_IMAGE_TAG: ${PANDAS_IMAGE_TAG}
+        PANDAS_PIP_PACKAGES: ${PANDAS_PIP_PACKAGES}
+        PIP_PACKAGES: ${PIP_PACKAGES}
+        PIP_TEST_PACKAGES: ${PIP_TEST_PACKAGES}

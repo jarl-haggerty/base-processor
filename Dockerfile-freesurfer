@@ -1,0 +1,133 @@
+ARG BASE_FREESURFER_IMAGE_TAG
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# BUILD ETL BASE FREESURFER
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FROM ubuntu:$BASE_FREESURFER_IMAGE_TAG as base_processor_freesurfer
+
+ARG FREESURFER_APT_PACKAGES
+ARG PIP_PACKAGES
+
+RUN apt-get update && \
+    apt-get -y upgrade && \
+    apt-get -y install ${FREESURFER_APT_PACKAGES} && \
+    pip install --upgrade ${PIP_PACKAGES}
+
+COPY base_processor /usr/local/lib/python2.7/site-packages/base_processor
+COPY bashlog        /bin/bashlog
+
+# Install dependencies for FS
+# Download FS_v5.3.0 from MGH and untar to /opt
+RUN wget -N -qO- ftp://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/5.3.0/freesurfer-Linux-centos4_x86_64-stable-pub-v5.3.0.tar.gz | tar -xzv -C /opt \
+    --exclude='freesurfer/trctrain' \
+    --exclude='freesurfer/subjects/fsaverage_sym' \
+    --exclude='freesurfer/subjects/fsaverage3' \
+    --exclude='freesurfer/subjects/fsaverage4' \
+    --exclude='freesurfer/subjects/fsaverage5' \
+    --exclude='freesurfer/subjects/fsaverage6' \
+    --exclude='freesurfer/subjects/cvs_avg35' \
+    --exclude='freesurfer/subjects/cvs_avg35_inMNI152' \
+    --exclude='freesurfer/subjects/bert' \
+    --exclude='freesurfer/subjects/V1_average' \
+    --exclude='freesurfer/average/mult-comp-cor' \
+    --exclude='freesurfer/lib/cuda' \
+    --exclude='freesurfer/lib/qt' \
+    && mkdir /output
+
+# Configure license
+COPY freesurfer_license /opt/freesurfer/.license
+
+# Configure basic freesurfer ENV
+ENV OS Linux
+ENV FS_OVERRIDE 0
+ENV FIX_VERTEX_AREA=
+ENV SUBJECTS_DIR /output
+ENV FSF_OUTPUT_FORMAT nii.gz
+ENV MNI_DIR /opt/freesurfer/mni
+ENV LOCAL_DIR /opt/freesurfer/local
+ENV FREESURFER_HOME /opt/freesurfer
+ENV FSFAST_HOME /opt/freesurfer/fsfast
+ENV MINC_BIN_DIR /opt/freesurfer/mni/bin
+ENV MINC_LIB_DIR /opt/freesurfer/mni/lib
+ENV MNI_DATAPATH /opt/freesurfer/mni/data
+ENV FMRI_ANALYSIS_DIR /opt/freesurfer/fsfast
+ENV PERL5LIB /opt/freesurfer/mni/lib/perl5/5.8.5
+ENV MNI_PERL5LIB /opt/freesurfer/mni/lib/perl5/5.8.5
+ENV PATH /opt/freesurfer/bin:/opt/freesurfer/fsfast/bin:/opt/freesurfer/tktools:/opt/freesurfer/mni/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Configure bashrc to source FreeSurferEnv.sh
+RUN /bin/bash -c ' echo -e "source $FREESURFER_HOME/FreeSurferEnv.sh &>/dev/null" >> /root/.bashrc '
+
+ENTRYPOINT [""]
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# BUILD ETL BASE FREESURFER TEST
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FROM ubuntu:$BASE_FREESURFER_IMAGE_TAG as base_processor_freesurfer_test
+
+ARG FREESURFER_APT_PACKAGES
+ARG FREESURFER_APT_TEST_PACKAGES
+ARG PIP_PACKAGES
+ARG PIP_TEST_PACKAGES
+
+RUN apt-get update && apt-get -y upgrade && apt-get -y install ${FREESURFER_APT_PACKAGES} ${FREESURFER_APT_TEST_PACKAGES}
+
+# Install libressl from OpenBSD port
+RUN wget -N -qO- http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-2.1.6.tar.gz | tar -xzv \
+    && cd libressl-2.1.6 \
+    && ./configure \
+    && make && make install && ldconfig
+
+# Fix issue with cryptography module pip install in moto dependency
+RUN apt-get update && apt-get -y upgrade && apt-get -y install python-dev
+
+RUN pip install --upgrade ${PIP_PACKAGES}
+RUN pip install --upgrade setuptools
+RUN pip install --upgrade ${PIP_TEST_PACKAGES}
+
+COPY base_processor /usr/local/lib/python2.7/site-packages/base_processor
+COPY bashlog        /bin/bashlog
+
+# Install dependencies for FS
+# Download FS_v5.3.0 from MGH and untar to /opt
+RUN wget -N -qO- ftp://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/5.3.0/freesurfer-Linux-centos4_x86_64-stable-pub-v5.3.0.tar.gz | tar -xzv -C /opt \
+    --exclude='freesurfer/trctrain' \
+    --exclude='freesurfer/subjects/fsaverage_sym' \
+    --exclude='freesurfer/subjects/fsaverage3' \
+    --exclude='freesurfer/subjects/fsaverage4' \
+    --exclude='freesurfer/subjects/fsaverage5' \
+    --exclude='freesurfer/subjects/fsaverage6' \
+    --exclude='freesurfer/subjects/cvs_avg35' \
+    --exclude='freesurfer/subjects/cvs_avg35_inMNI152' \
+    --exclude='freesurfer/subjects/bert' \
+    --exclude='freesurfer/subjects/V1_average' \
+    --exclude='freesurfer/average/mult-comp-cor' \
+    --exclude='freesurfer/lib/cuda' \
+    --exclude='freesurfer/lib/qt' \
+    && mkdir /output
+
+# Configure license
+COPY freesurfer_license /opt/freesurfer/.license
+
+# Configure basic freesurfer ENV
+ENV OS Linux
+ENV FS_OVERRIDE 0
+ENV FIX_VERTEX_AREA=
+ENV SUBJECTS_DIR /output
+ENV FSF_OUTPUT_FORMAT nii.gz
+ENV MNI_DIR /opt/freesurfer/mni
+ENV LOCAL_DIR /opt/freesurfer/local
+ENV FREESURFER_HOME /opt/freesurfer
+ENV FSFAST_HOME /opt/freesurfer/fsfast
+ENV MINC_BIN_DIR /opt/freesurfer/mni/bin
+ENV MINC_LIB_DIR /opt/freesurfer/mni/lib
+ENV MNI_DATAPATH /opt/freesurfer/mni/data
+ENV FMRI_ANALYSIS_DIR /opt/freesurfer/fsfast
+ENV PERL5LIB /opt/freesurfer/mni/lib/perl5/5.8.5
+ENV MNI_PERL5LIB /opt/freesurfer/mni/lib/perl5/5.8.5
+ENV PATH /opt/freesurfer/bin:/opt/freesurfer/fsfast/bin:/opt/freesurfer/tktools:/opt/freesurfer/mni/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Configure bashrc to source FreeSurferEnv.sh
+RUN /bin/bash -c ' echo -e "source $FREESURFER_HOME/FreeSurferEnv.sh &>/dev/null" >> /root/.bashrc '
+
+ENTRYPOINT [""]

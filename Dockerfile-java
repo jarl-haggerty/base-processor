@@ -1,0 +1,17 @@
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# BUILD ETL BASE JAVA
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ARG JAVA_IMAGE_TAG
+
+FROM pennsieve/java-python:$JAVA_IMAGE_TAG as base_processor_java_python
+
+ARG APK_PACKAGES
+ARG PIP_PACKAGES
+
+RUN apk -v add --no-cache ${APK_PACKAGES} && \
+    pip install --upgrade --no-cache-dir ${PIP_PACKAGES}
+
+COPY base_processor /usr/local/lib/python2.7/site-packages/base_processor
+COPY bashlog        /bin/bashlog
+
+ENTRYPOINT [""]
