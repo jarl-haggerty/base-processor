@@ -4,7 +4,6 @@ import os
 import sys
 import time
 import json
-import boto3
 import logging
 import shutil
 from botocore.client import Config
@@ -36,22 +35,7 @@ class BaseProcessor(object):
 
         Note: Uses AES256 Encryption.
         '''
-        self.LOGGER.info("Uploading local file to S3")
-
-        session = boto3.session.Session()
-        s3 = session.client('s3', config=Config(signature_version='s3v4'), endpoint_url=self.settings.s3_endpoint)
-
-        _start = time.time()
-        s3.upload_file(
-            Filename=local_path,
-            Bucket=self.settings.storage_bucket,
-            Key=s3_path,
-            ExtraArgs=dict(
-                ServerSideEncryption="AES256",
-            ))
-        _dt = int((time.time() - _start) * 1000)
-
-        self.LOGGER.info('Upload complete. Duration in milliseconds: {}  '.format(_dt))
+        self.LOGGER.info('Upload is unimplemented.')
 
     def task(self):
         '''
